@@ -1,6 +1,13 @@
 # Ignore the super sekrit ssh keys!
 keys/
 
+# Ignore all the dot files
+.classpath
+.gradle/
+.project
+.settings/
+.vscode/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
