@@ -1,0 +1,45 @@
+// Applies the Gradle SSH plugins from before.
+plugins {
+    id "java"
+    id "org.hidetake.ssh" version "2.9.0"
+    id "jaci.gradle.EmbeddedTools" version "2018.12.18"
+}
+
+// Creates a FileTree object to only pull all .py files within
+// the python folder in directory path for deployment.
+FileTree tree = fileTree(dir: 'src/python', include: '*.py')
+
+// Identifies the remote with a name, jetson, and a host static
+// IP as well as teh username, roboloco. SSH Keys are required
+// to be able to deploy, and setup must be done beforehand.
+remotes {
+    jetson {
+        host = '10.68.29.22'
+        user = 'josh'
+        agent = true
+    }
+}
+
+task deployJetson {
+    ssh.run {
+        settings {
+            // path to the private key
+            identity = new File('keys/jetson_rsa')
+        }
+        session(remotes.jetson) {
+            put from: 'src/python/', into: '/home/josh/vision/'
+            execute 'sudo /bin/systemctl restart vision'
+        }
+    }
+}
+
+deploy {
+    targets {
+        target('jetson') {
+            // If you are setting up, comment out the line 
+            // below to prevent a error.
+            deployJetson.execute()
+            }
+    }
+}
+
